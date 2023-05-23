@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
+import 'dart:math';
 
 void main() {
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
@@ -47,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
 
     _animationController = AnimationController(
-      duration: const Duration(seconds: 60),
+      duration: const Duration(seconds: 10),
       vsync: this,
     );
 
@@ -86,6 +87,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   StatefulWidget build(BuildContext context) {
+    // ignore: prefer_typing_uninitialized_variables
+    var math;
     return Scaffold(
       body: Column(
         children: [
@@ -97,197 +100,240 @@ class _MyHomePageState extends State<MyHomePage>
                   fit: BoxFit.cover,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.home),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Configuraçoes'),
-                              content: StatefulBuilder(
-                                builder: (BuildContext context,
-                                    StateSetter setState) {
-                                  return SingleChildScrollView(
-                                    child: Column(
-                                      children: [
-                                        const Text('Horarios'),
-                                        const TextField(
-                                          keyboardType: TextInputType.number,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(),
-                                            hintText: 'Tempo de Atividade',
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15, top: 15),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.settings,
+                          size: 40,
+                        ),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  'Configuraçoes',
+                                  style: TextStyle(
+                                      fontFamily: 'Baloo',
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.normal),
+                                ),
+                                content: StatefulBuilder(
+                                  builder: (BuildContext context,
+                                      StateSetter setState) {
+                                    return SingleChildScrollView(
+                                      child: Column(
+                                        children: [
+                                          const Text(
+                                            'Horarios',
+                                            style: TextStyle(
+                                                fontFamily: 'Baloo',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.normal),
                                           ),
-                                        ),
-                                        const TextField(
-                                          keyboardType: TextInputType.number,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(),
-                                            hintText: 'Tempo de Intervalo',
+                                          const TextField(
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              hintText: 'Tempo de Atividade',
+                                            ),
+                                            style: TextStyle(
+                                                fontFamily: 'Baloo',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.normal),
                                           ),
-                                        ),
-                                        const Text('Botao Iniciar'),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            ElevatedButton(
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty
-                                                        .resolveWith<Color>(
-                                                  (Set<MaterialState> states) {
-                                                    if (manualButton) {
-                                                      return Colors
-                                                          .grey; // Cor cinza para true
-                                                    }
-                                                    return Colors
-                                                        .blue; // Cor azul para false
-                                                  },
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  manualButton = !manualButton;
-                                                  autoButton = !autoButton;
-                                                });
-                                              },
-                                              child: const Text('Manual'),
+                                          SizedBox(height: 10,),
+                                          const TextField(
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              hintText: 'Tempo de Intervalo',
+                                              
                                             ),
-                                            ElevatedButton(
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty
-                                                        .resolveWith<Color>(
-                                                  (Set<MaterialState> states) {
-                                                    if (autoButton) {
-                                                      return Colors
-                                                          .grey; // Cor cinza para true
-                                                    }
-                                                    return Colors
-                                                        .blue; // Cor azul para false
-                                                  },
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  manualButton = !manualButton;
-                                                  autoButton = !autoButton;
-                                                });
-                                              },
-                                              child: const Text('Auto'),
-                                            ),
-                                          ],
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              waterButton = !waterButton;
-                                            });
-                                          },
-                                          child: Column(
+                                            style: TextStyle(
+                                                fontFamily: 'Baloo',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.normal),
+                                          ),
+                                        
+                                          const Text(
+                                            'Botao Iniciar',
+                                            style: TextStyle(
+                                                fontFamily: 'Baloo',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.normal),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                      'Controle da Água'),
-                                                  Switch(
-                                                    value: waterButton,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        waterButton = value;
-                                                      });
+                                              ElevatedButton(
+                                                style: ButtonStyle(
+                                                  backgroundColor:
+                                                      MaterialStateProperty
+                                                          .resolveWith<Color>(
+                                                    (Set<MaterialState>
+                                                        states) {
+                                                      if (manualButton) {
+                                                        return Colors
+                                                            .grey; // Cor cinza para true
+                                                      }
+                                                      return Colors
+                                                          .blue; // Cor azul para false
                                                     },
                                                   ),
-                                                ],
-                                              ),
-                                              TextField(
-                                                enabled: waterButton,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  hintText:
-                                                      'Quantidade de Água Diária...',
                                                 ),
-                                                onChanged: (value) => {
+                                                onPressed: () {
                                                   setState(() {
-                                                    waterValueMax =
-                                                        double.parse(value);
-                                                  })
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              hintButton = !hintButton;
-                                            });
-                                          },
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('Receber Dicas'),
-                                              Switch(
-                                                value: hintButton,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    hintButton = value;
+                                                    manualButton =
+                                                        !manualButton;
+                                                    autoButton = !autoButton;
                                                   });
                                                 },
+                                                child: const Text('Manual'),
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              notificationButton =
-                                                  !notificationButton;
-                                            });
-                                          },
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('Notificaçoes'),
-                                              Switch(
-                                                value: notificationButton,
-                                                onChanged: (value) {
+                                              ElevatedButton(
+                                                style: ButtonStyle(
+                                                  backgroundColor:
+                                                      MaterialStateProperty
+                                                          .resolveWith<Color>(
+                                                    (Set<MaterialState>
+                                                        states) {
+                                                      if (autoButton) {
+                                                        return Colors
+                                                            .grey; // Cor cinza para true
+                                                      }
+                                                      return Colors
+                                                          .blue; // Cor azul para false
+                                                    },
+                                                  ),
+                                                ),
+                                                onPressed: () {
                                                   setState(() {
-                                                    notificationButton = value;
+                                                    manualButton =
+                                                        !manualButton;
+                                                    autoButton = !autoButton;
                                                   });
                                                 },
+                                                child: const Text('Auto'),
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                waterButton = !waterButton;
+                                              });
+                                            },
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    const Text(
+                                                        'Controle da Água'),
+                                                    Switch(
+                                                      value: waterButton,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          waterButton = value;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                                TextField(
+                                                  enabled: waterButton,
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    hintText:
+                                                        'Quantidade de Água Diária...',
+                                                  ),
+                                                  onChanged: (value) => {
+                                                    setState(() {
+                                                      waterValueMax =
+                                                          double.parse(value);
+                                                    })
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                hintButton = !hintButton;
+                                              });
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text('Receber Dicas'),
+                                                Switch(
+                                                  value: hintButton,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      hintButton = value;
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                notificationButton =
+                                                    !notificationButton;
+                                              });
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text('Notificaçoes'),
+                                                Switch(
+                                                  value: notificationButton,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      notificationButton =
+                                                          value;
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
                                   },
-                                  child: const Text('Salvar'),
                                 ),
-                              ],
-                            );
-                          },
-                        );
-                      },
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Salvar'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -309,9 +355,8 @@ class _MyHomePageState extends State<MyHomePage>
                           const RoundSliderOverlayShape(overlayRadius: 20.0),
                     ),
                     child: Transform.rotate(
-                      angle: -90 *
-                          math.pi /
-                          180, // Gire o Slider em 90 graus no sentido anti-horário
+                      // Gire o Slider em 90 graus no sentido anti-horário
+                      angle: 90 * pi / 180,
                       child: Slider(
                         value: waterValue,
                         min: 0,
@@ -337,7 +382,9 @@ class _MyHomePageState extends State<MyHomePage>
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text('Configuraçoes'),
+                            title: const Text(
+                              'Configuraçoes',
+                            ),
                             content: StatefulBuilder(
                               builder:
                                   (BuildContext context, StateSetter setState) {
@@ -423,9 +470,7 @@ class _MyHomePageState extends State<MyHomePage>
                           );
                         },
                       ).then((_) {
-                        setState(() {
-                          
-                        });
+                        setState(() {});
                       });
                     },
                     child:
@@ -473,19 +518,29 @@ class _MyHomePageState extends State<MyHomePage>
                         startAnimation();
                       }
                     },
-                    child: Text(isCountingDown ? 'Parar' : 'Iniciar'),
+                    child: Text(
+                      isCountingDown ? 'Parar' : 'Iniciar',
+                      style: const TextStyle(
+                          fontFamily: 'Baloo',
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal),
+                    ),
                   ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 20),
-          const Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Digite algo...',
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: const Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Digite algo...',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: null,
               ),
-              maxLines: null,
             ),
           ),
         ],
