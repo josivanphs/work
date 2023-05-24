@@ -1,25 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'dart:async';
-import 'notifications.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(),
-    );
-  }
-}
+// ignore: unnecessary_import
+import 'dart:ui';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -45,30 +27,12 @@ class _MyHomePageState extends State<MyHomePage>
   bool autoButton = false;
   bool manualButton = true;
 
-
-  List<String> notifications = [];
-
-  void startNotifications() {
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      setState(() {
-        notifications.add('Nova notificação ${timer.tick}');
-      });
-    });
-  }
-
-  void removeNotification(String notification) {
-    setState(() {
-      notifications.remove(notification);
-    });
-  }
-
-
   @override
   void initState() {
     super.initState();
-    startNotifications();
+
     _animationController = AnimationController(
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 60),
       vsync: this,
     );
 
@@ -107,7 +71,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   StatefulWidget build(BuildContext context) {
-    // ignore: prefer_typing_uninitialized_variables
     return Scaffold(
       body: Column(
         children: [
@@ -118,40 +81,29 @@ class _MyHomePageState extends State<MyHomePage>
                   'assets/images/topo1.png',
                   fit: BoxFit.cover,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15, top: 15),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.settings,
-                          size: 40,
-                        ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.settings),
+                        iconSize: 50,
                         onPressed: () {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text(
-                                  'Configuraçoes',
-                                  style: TextStyle(
-                                      fontFamily: 'Baloo',
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.normal),
-                                ),
+                                title: const Text('Configurações'),
                                 content: StatefulBuilder(
                                   builder: (BuildContext context,
                                       StateSetter setState) {
                                     return SingleChildScrollView(
                                       child: Column(
                                         children: [
-                                          const Text(
-                                            'Horarios',
-                                            style: TextStyle(
-                                                fontFamily: 'Baloo',
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.normal),
+                                          const Text('Horários'),
+                                          const SizedBox(
+                                            height: 8,
                                           ),
                                           const TextField(
                                             keyboardType: TextInputType.number,
@@ -159,32 +111,16 @@ class _MyHomePageState extends State<MyHomePage>
                                               border: OutlineInputBorder(),
                                               hintText: 'Tempo de Atividade',
                                             ),
-                                            style: TextStyle(
-                                                fontFamily: 'Baloo',
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.normal),
                                           ),
-                                          const SizedBox(height: 10,),
+                                          const SizedBox(height: 10),
                                           const TextField(
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
                                               border: OutlineInputBorder(),
                                               hintText: 'Tempo de Intervalo',
-                                              
                                             ),
-                                            style: TextStyle(
-                                                fontFamily: 'Baloo',
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.normal),
                                           ),
-                                        
-                                          const Text(
-                                            'Botao Iniciar',
-                                            style: TextStyle(
-                                                fontFamily: 'Baloo',
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.normal),
-                                          ),
+                                          const Text('Botao Iniciar'),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -353,8 +289,8 @@ class _MyHomePageState extends State<MyHomePage>
                           );
                         },
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -374,8 +310,9 @@ class _MyHomePageState extends State<MyHomePage>
                           const RoundSliderOverlayShape(overlayRadius: 20.0),
                     ),
                     child: Transform.rotate(
-                      // Gire o Slider em 90 graus no sentido anti-horário
-                      angle: 90 * pi / 180,
+                      angle: -90 *
+                          pi /
+                          180, // Gire o Slider em 90 graus no sentido anti-horário
                       child: Slider(
                         value: waterValue,
                         min: 0,
@@ -401,9 +338,7 @@ class _MyHomePageState extends State<MyHomePage>
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text(
-                              'Configuraçoes',
-                            ),
+                            title: const Text('Configuraçoes'),
                             content: StatefulBuilder(
                               builder:
                                   (BuildContext context, StateSetter setState) {
@@ -422,12 +357,12 @@ class _MyHomePageState extends State<MyHomePage>
                                               });
                                               Navigator.of(context).pop();
                                             },
+                                            child: Icon(Icons.add),
                                             style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(
+                                              shape: CircleBorder(),
+                                              padding: EdgeInsets.all(
                                                   16.0), // Ajuste o tamanho do botão conforme necessário
                                             ),
-                                            child: const Icon(Icons.add),
                                           ),
                                           ElevatedButton(
                                             onPressed: () {
@@ -437,12 +372,12 @@ class _MyHomePageState extends State<MyHomePage>
                                               });
                                               Navigator.of(context).pop();
                                             },
+                                            child: Icon(Icons.add),
                                             style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(
+                                              shape: CircleBorder(),
+                                              padding: EdgeInsets.all(
                                                   16.0), // Ajuste o tamanho do botão conforme necessário
                                             ),
-                                            child: const Icon(Icons.add),
                                           ),
                                           ElevatedButton(
                                             onPressed: () {
@@ -450,12 +385,12 @@ class _MyHomePageState extends State<MyHomePage>
                                               waterValue += 500;
                                               Navigator.of(context).pop();
                                             },
+                                            child: Icon(Icons.add),
                                             style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(
+                                              shape: CircleBorder(),
+                                              padding: EdgeInsets.all(
                                                   16.0), // Ajuste o tamanho do botão conforme necessário
                                             ),
-                                            child: const Icon(Icons.add),
                                           ),
                                         ],
                                       ),
@@ -537,74 +472,21 @@ class _MyHomePageState extends State<MyHomePage>
                         startAnimation();
                       }
                     },
-                    child: Text(
-                      isCountingDown ? 'Parar' : 'Iniciar',
-                      style: const TextStyle(
-                          fontFamily: 'Baloo',
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal),
-                    ),
+                    child: Text(isCountingDown ? 'Parar' : 'Iniciar'),
                   ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 20),
-
-          
-          SingleChildScrollView(
-            child: Container(
-              height: 200, // Defina a altura máxima desejada
-              color: Colors.grey[200],
-              child: ListView.builder(
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 5), // Adicione um espaçamento entre as notificações
-                    child: Dismissible(
-                      key: Key(notification),
-                      direction: DismissDirection.horizontal, // Defina a direção de deslize permitida
-                      onDismissed: (direction) {
-                        setState(() {
-                          notifications.removeAt(index); // Remova a notificação da lista
-                        });
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   SnackBar(content: Text('Notificação removida')),
-                        // );
-                      },
-                      confirmDismiss: (direction) async {
-                        if (direction == DismissDirection.startToEnd ||
-                            direction == DismissDirection.endToStart) {
-                          return true; // Confirma a remoção da notificação
-                        }
-                        return false; // Cancela a remoção da notificação
-                      },
-                      // background: Container(
-                      //   color: Colors.red,
-                      //   child: Icon(Icons.delete, color: Colors.white),
-                      //   alignment: Alignment.centerLeft,
-                      //   padding: EdgeInsets.only(left: 16),
-                      // ),
-                      child: SizedBox(
-                        width: 200, // Defina a largura desejada para cada notificação
-                        height: 30, // Defina a altura desejada para cada notificação
-                        child: NotificationBar(
-                          text: notification,
-                          onDismissed: () => removeNotification(notification),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+          const Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Digite algo...',
               ),
+              maxLines: null,
             ),
           ),
-
-
-
-
         ],
       ),
     );
