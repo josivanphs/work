@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'dart:async';
 import 'notifications.dart';
 import 'timer.dart';
 
@@ -40,10 +39,10 @@ class _MyHomePageState extends State<MyHomePage>
   double waterValueMax = 0.0;
   double timer = 0;
 
-  bool isCountingDown = false;
-  bool waterButton = false;
-  bool hintButton = false;
-  bool notificationButton = false;
+
+  bool waterButton = true;
+  bool hintButton = true;
+  bool notificationButton = true;
 
   bool autoButton = true;
   bool manualButton = false;
@@ -90,7 +89,6 @@ class _MyHomePageState extends State<MyHomePage>
       if (status == AnimationStatus.completed) {
         // A animação foi concluída, você pode realizar alguma ação aqui
         setState(() {
-          isCountingDown = false;
         });
       }
     });
@@ -104,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   void startAnimation() {
     setState(() {
-      isCountingDown = true;
       _animationController.reset();
       _animationController.forward();
     });
@@ -112,7 +109,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   void stopAnimation() {
     setState(() {
-      isCountingDown = false;
       _animationController.reverse();
     });
   }
@@ -396,61 +392,31 @@ class _MyHomePageState extends State<MyHomePage>
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    width: 200,
-                    height: 300,
-                        child: 
-                          KeyedSubtree(
-                            key: ValueKey(activityTime), // Use uma chave única baseada em activityTime
-                            child: PomodoroTimer(
-                              activityTime: activityTime,
-                              breakTime: breakTime,
-                              auto: autoButton,
-                            ),
-                          )
-                  ),
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     if (isCountingDown) {
-                  //       stopAnimation();
-                  //     } else {
-                  //       startAnimation();
-                  //     }
-                  //   },
-                  //   child: Text(
-                  //     isCountingDown ? 'Parar' : 'Iniciar',
-                  //     style: const TextStyle(
-                  //         fontFamily: 'Baloo',
-                  //         fontSize: 16,
-                  //         fontWeight: FontWeight.normal),
-                  //   ),
-                  // ),
-                ],
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 30.0,
-                      thumbShape:
-                          const RoundSliderThumbShape(enabledThumbRadius: 0.0),
-                      overlayShape:
-                          const RoundSliderOverlayShape(overlayRadius: 20.0),
-                    ),
-                    child: Transform.rotate(
-                      // Gire o Slider em 90 graus no sentido anti-horário
-                      angle: 180 * pi / 180,
-                      child: Slider(
-                        value: waterValue,
-                        min: 0,
-                        max: waterValueMax * 1000,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 30.0,
+                        activeTrackColor: Colors.blue, // Define a cor de preenchimento transparente
+                        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 00.0),
+                        overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
+                      ),
+                      child: Transform.rotate(
+                        angle: 180 * pi / 180,
+                        child: 
+                        Slider(
+                          value: waterValue,
+                          min: 0,
+                          max: waterValueMax * 1000,
+                          onChanged: (value) {
+                            setState(() {
+                              waterValue = value;
+                            });
+                          },
+                        ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 60),
                   ElevatedButton(
                     onPressed: () {
@@ -562,11 +528,43 @@ class _MyHomePageState extends State<MyHomePage>
                             setState(() {});
                           });
                     }},
-                    child:
-                        Text((waterValue < waterValueMax) ? (waterValueMax >= 0) ? 'Água' : 'Zerar' : 'Adicionar'),
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(50)),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/gotas.png',
+                            width: 30.0,
+                            height: 30.0,
+                          ),
+                        ],
+                      ),
                   ),
                 ],
-              ),   
+              ), 
+                  SizedBox(
+                    width: 250,
+                    height: 320,
+                        child: 
+                          KeyedSubtree(
+                            key: ValueKey(activityTime), // Use uma chave única baseada em activityTime
+                            child: PomodoroTimer(
+                              activityTime: activityTime,
+                              breakTime: breakTime,
+                              auto: autoButton,
+                            ),
+                          )
+                  ),
+
+
+
+                ],
+              ),
+  
       ]),
 
 

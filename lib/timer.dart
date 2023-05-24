@@ -29,10 +29,15 @@ class _PomodoroTimerState extends State<PomodoroTimer>
   int _currentTimeBreak = 0;
   int _totalTimeBreak = 0;
   int _currentTimeRemaining = 0;
+  int _currentTimeRemainingBreak = 0;
+
   int _elapsedSeconds = 0;
   bool _isActivityTime = true;
   // ignore: unused_field
   String _timerText = '';
+  bool isCountingDown = false;
+  bool loop = true;
+
 // Tempo de trabalho padrão: 25 minutos (em segundos)
 // Tempo de intervalo padrão: 5 minutos (em segundos)
 
@@ -46,6 +51,8 @@ void initState() {
   _totalTimeBreak = widget.breakTime;
   _currentTimeBreak = widget.breakTime;
   _currentTimeRemaining = widget.activityTime;
+  _currentTimeRemainingBreak = widget.breakTime;
+
 
   
   _animationController = AnimationController(
@@ -56,9 +63,8 @@ void initState() {
   _animation = Tween<double>(begin: 1.0, end: 0.0).animate(_animationController)
     ..addListener(() {
     });
-
-  // _animationController.reverse(from: 1.0);
 }
+
 
 
   @override
@@ -71,32 +77,52 @@ void initState() {
 
   int calculateTimeRemaining() {
     if (_isActivityTime) {
-      return widget.activityTime - _elapsedSeconds;
+      return widget.activityTime - _elapsedSeconds -1;
     } else {
-      return widget.breakTime - _elapsedSeconds;
+      return widget.breakTime - _elapsedSeconds -1;
     }
   }
 
-  void startTimer() {
 
-  _currentTimeRemaining = widget.activityTime;
-  _currentTime = _totalTime;
+  void timer(){
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _isActivityTime = true;
+    setState(() {
+      if (_isActivityTime) {
+
         if (_currentTimeRemaining > 0) {
           _currentTimeRemaining = calculateTimeRemaining(); // Atualize o tempo restante aqui
           _elapsedSeconds++; // Atualize os segundos decorridos
         }
-      });
+      }
+      else {
+        if (_currentTimeRemainingBreak > 0) {
+          _currentTimeRemainingBreak = calculateTimeRemaining(); // Atualize o tempo restante aqui
+          _elapsedSeconds++; // Atualize os segundos decorridos
+        }
+      }
+    });
+
+  // _animationController.reverse(from: 1.0);
   });
 
+  }
 
-  _animationController.duration = Duration(seconds: _currentTime);
-  _animationController.reset();
-  _animationController.reverse(from: 1.0).whenComplete(() {
+
+
+  void startTimer() {
+      setState(() {
+        _currentTimeRemaining = widget.activityTime;
+        _isActivityTime = true;
+        _elapsedSeconds = 0;
+      });
+  _animationController.duration = Duration(seconds: widget.activityTime);
+  // _animationController.reset();
+  _animationController.reverse(from: 1.0).whenComplete(() async {
     // A animação terminou, chame a função startBreakTime()
+    await Future.delayed(Duration(seconds: 1));
+
     if (widget.auto) {
+
       startBreakTime();
     }
   });
@@ -104,50 +130,47 @@ void initState() {
 
   void stopTimer() {
     _timer.cancel();
+    _currentTimeRemaining = 0;
+    _elapsedSeconds = 0;
+    _animationController.reset();
+    _animationController.stop();
   }
 
   void startBreakTime() {
       setState(() {
-        _currentTimeRemaining = widget.breakTime;
+        _currentTimeRemainingBreak = widget.breakTime;
         _isActivityTime = false;
         _elapsedSeconds = 0;
+        
       });
-        _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-          setState(() {
-            if (_currentTimeRemaining > 0) {
-              _currentTimeRemaining = calculateTimeRemaining(); // Atualize o tempo restante aqui
-              _elapsedSeconds++; // Atualize os segundos decorridos
-            }
-          });
-      });
+      _animationController.duration = Duration(seconds: widget.breakTime);
+      // _animationController.reset();
+      _animationController.reverse(from: 1.0).whenComplete(() async {
+        await Future.delayed(Duration(seconds: 1));
+    // A animação terminou, chame a função startBreakTime()
+        if (widget.auto) {
 
-
-      _animationController.duration = Duration(seconds: _currentTimeBreak);
-      _animationController.reset();
-      _animationController.reverse(from: 1.0);
-  }
-
-  void setWorkTime(int minutes) {
-    setState(() {
+          startTimer();
+        }
     });
-  }
-
-  void setBreakTime(int minutes) {
-    setState(() {
-    });
-  }
+    }
 
 
   Widget _buildCircularTimer() {
-    return CircularPercentIndicator(
-      radius: 200.0,
-      lineWidth: 10.0,
-      percent: _animation.value,
-      center: Text(
-        '$_currentTimeRemaining',
-        style: TextStyle(fontSize: 48.0),
-      ),
-      progressColor: Colors.blue,
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, _) {
+        return CircularPercentIndicator(
+          radius: 200.0,
+          lineWidth: 30.0,
+          percent: _animation.value,
+          center: Text(
+            _isActivityTime ? '$_currentTimeRemaining' : '$_currentTimeRemainingBreak',
+            style: TextStyle(fontSize: 48.0),
+          ),
+          progressColor: _isActivityTime ? Colors.blue : Colors.green,
+        );
+      }
     );
   }
 
@@ -176,15 +199,41 @@ void initState() {
                         child:
                           ElevatedButton(
                             onPressed: (widget.auto) ? null : () {
-                              if (_isActivityTime) {
-                                startTimer();
-                              } else {
-                                startBreakTime();
-                              }
                             },
                             child: Text((_isActivityTime) ? 'Iniciar Atividade' : 'Iniciar Intervalo'),
                           ),
-                      )
+                      ),
+                  SizedBox(
+                    width: 200,
+                    height: 50,
+                    child: 
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          if (!isCountingDown)
+                          {
+                            startTimer();
+                            timer();
+                          }
+                          else{
+                            stopTimer();
+                          }
+                          setState(() {
+                            isCountingDown = !isCountingDown;
+                          });
+                        },
+                        child: Text(
+                          isCountingDown ? 'Parar' : 'Iniciar',
+                          style: const TextStyle(
+                              fontFamily: 'Baloo',
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ),
+                    ],
+                  ),),
                     ],
                   ),
               ),
