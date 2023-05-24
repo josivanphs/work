@@ -1,15 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+// ignore_for_file: depend_on_referenced_packages
 
+import 'package:flutter/material.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'dart:async';
 
 
 class PomodoroTimer extends StatefulWidget {
 
   final int activityTime;
   final int breakTime;
+  final bool auto;
 
-  PomodoroTimer({required this.activityTime, required this.breakTime});
+  PomodoroTimer({required this.activityTime, required this.breakTime, required this.auto});
 
   @override
   _PomodoroTimerState createState() => _PomodoroTimerState();
@@ -21,19 +23,30 @@ class _PomodoroTimerState extends State<PomodoroTimer>
     late Animation<double> _animation;
     late TextEditingController _workTimeController;
     late TextEditingController _breakTimeController;
-
+  Timer _timer = Timer(Duration.zero, () {});
   int _currentTime = 0;
   int _totalTime = 0;
-
+  int _currentTimeBreak = 0;
+  int _totalTimeBreak = 0;
+  int _currentTimeRemaining = 0;
+  int _elapsedSeconds = 0;
+  bool _isActivityTime = true;
+  // ignore: unused_field
   String _timerText = '';
-  int _workTime = 25 * 60; // Tempo de trabalho padrão: 25 minutos (em segundos)
-  int _breakTime = 5 * 60; // Tempo de intervalo padrão: 5 minutos (em segundos)
+// Tempo de trabalho padrão: 25 minutos (em segundos)
+// Tempo de intervalo padrão: 5 minutos (em segundos)
 
 @override
 void initState() {
   super.initState();
+
+
   _totalTime = widget.activityTime;
   _currentTime = widget.activityTime;
+  _totalTimeBreak = widget.breakTime;
+  _currentTimeBreak = widget.breakTime;
+  _currentTimeRemaining = widget.activityTime;
+
   
   _animationController = AnimationController(
     vsync: this,
@@ -42,74 +55,85 @@ void initState() {
 
   _animation = Tween<double>(begin: 1.0, end: 0.0).animate(_animationController)
     ..addListener(() {
-      setState(() {});
     });
 
-  _animationController.reverse(from: 1.0);
-    _workTimeController = TextEditingController(text: '25');
-    _breakTimeController = TextEditingController(text: '5');
+  // _animationController.reverse(from: 1.0);
 }
+
 
   @override
   void dispose() {
+    _timer.cancel();
     _animationController.dispose();
-    _workTimeController.dispose();
-    _breakTimeController.dispose();
     super.dispose();
   }
 
+
+  int calculateTimeRemaining() {
+    if (_isActivityTime) {
+      return widget.activityTime - _elapsedSeconds;
+    } else {
+      return widget.breakTime - _elapsedSeconds;
+    }
+  }
+
   void startTimer() {
-  setState(() {
-    _currentTime = _totalTime;
+
+  _currentTimeRemaining = widget.activityTime;
+  _currentTime = _totalTime;
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _isActivityTime = true;
+        if (_currentTimeRemaining > 0) {
+          _currentTimeRemaining = calculateTimeRemaining(); // Atualize o tempo restante aqui
+          _elapsedSeconds++; // Atualize os segundos decorridos
+        }
+      });
   });
+
 
   _animationController.duration = Duration(seconds: _currentTime);
   _animationController.reset();
-  _animationController.reverse(from: 1.0);
-}
+  _animationController.reverse(from: 1.0).whenComplete(() {
+    // A animação terminou, chame a função startBreakTime()
+    if (widget.auto) {
+      startBreakTime();
+    }
+  });
+  }
+
+  void stopTimer() {
+    _timer.cancel();
+  }
 
   void startBreakTime() {
-    // int duration = _animationController.duration?.inSeconds ?? 0;
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(minutes: widget.breakTime),
-    );
-    _animationController.reverse(from: 1.0);
-    _animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        // O tempo de intervalo terminou, iniciar o próximo ciclo de trabalho
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Pomodoro'),
-            content: Text('Tempo de intervalo terminou!'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  startTimer();
-                },
-                child: Text('Iniciar próximo ciclo'),
-              ),
-            ],
-          ),
-        );
-      }
-    });
-    setState(() {
-      _timerText = 'Tempo de intervalo';
-    });
+      setState(() {
+        _currentTimeRemaining = widget.breakTime;
+        _isActivityTime = false;
+        _elapsedSeconds = 0;
+      });
+        _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+          setState(() {
+            if (_currentTimeRemaining > 0) {
+              _currentTimeRemaining = calculateTimeRemaining(); // Atualize o tempo restante aqui
+              _elapsedSeconds++; // Atualize os segundos decorridos
+            }
+          });
+      });
+
+
+      _animationController.duration = Duration(seconds: _currentTimeBreak);
+      _animationController.reset();
+      _animationController.reverse(from: 1.0);
   }
 
   void setWorkTime(int minutes) {
     setState(() {
-      _workTime = minutes * 60;
     });
   }
 
   void setBreakTime(int minutes) {
     setState(() {
-      _breakTime = minutes * 60;
     });
   }
 
@@ -120,7 +144,7 @@ void initState() {
       lineWidth: 10.0,
       percent: _animation.value,
       center: Text(
-        '$_currentTime',
+        '$_currentTimeRemaining',
         style: TextStyle(fontSize: 48.0),
       ),
       progressColor: Colors.blue,
@@ -136,7 +160,7 @@ void initState() {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 50), // Adicione um espaçamento entre as notificações
+                padding: const EdgeInsets.only(bottom: 1), // Adicione um espaçamento entre as notificações
                 child: 
                   Column(
                     children: [
@@ -151,10 +175,14 @@ void initState() {
                         height: 30,
                         child:
                           ElevatedButton(
-                            onPressed: () {
-                              startTimer();
+                            onPressed: (widget.auto) ? null : () {
+                              if (_isActivityTime) {
+                                startTimer();
+                              } else {
+                                startBreakTime();
+                              }
                             },
-                            child: Text('Iniciar Timer'),
+                            child: Text((_isActivityTime) ? 'Iniciar Atividade' : 'Iniciar Intervalo'),
                           ),
                       )
                     ],

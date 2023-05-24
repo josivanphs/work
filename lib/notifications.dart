@@ -7,10 +7,12 @@ import 'dart:math' show Random;
 class NotificationBar extends StatefulWidget {
   final String text;
   final VoidCallback onDismissed;
+  final String category;
 
 
 
-  NotificationBar({required this.text, required this.onDismissed});
+
+  NotificationBar({required this.text, required this.onDismissed, required this.category});
 
   @override
   _NotificationBarState createState() => _NotificationBarState();
@@ -22,7 +24,7 @@ with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
   // Map<String, dynamic> jsonData = {};
-
+  String text_final = "Nada";
 
 
   @override
@@ -55,7 +57,8 @@ with SingleTickerProviderStateMixin {
         "alertas": [
           "Alerta : Você está a muito tempo trabalhando, dê um descanso!",
           "Alerta : O dia vai acabar e você está longe de bater a sua meta diária",
-          "Alerta : Você está a muito tempo sem beber água"
+          "Alerta : Você está a muito tempo sem beber água",
+          "Alerta : Você precisa colocar a sua meta diária de água nas configurações"
         ]
     };
 
@@ -64,6 +67,16 @@ with SingleTickerProviderStateMixin {
     return jsonEncode(jsonData);
     }
 
+  Color _getCategoryColor(String category) {
+    if (category == 'Água' || category == 'Alerta') {
+      return Colors.blue; // Retorna azul para a categoria "agua"
+    } else if (category == 'Dica') {
+      return Colors.green; // Retorna verde para a categoria "dica"
+    } else if (category == 'Alerta') {
+      return Colors.red; // Retorna vermelho para a categoria "alerta"
+    }
+    return Colors.grey; // Retorna cinza para qualquer outra categoria desconhecida
+  }
 
   @override
   void dispose() {
@@ -81,12 +94,22 @@ with SingleTickerProviderStateMixin {
             context: context,
             builder: (context) {
                   // if (jsonData.isNotEmpty) {
-                    List<String> alertas = List<String>.from(jsonData['alertas']);
-                    int randomIndex = Random().nextInt(alertas.length);
-                    String alertaAleatorio = alertas[randomIndex];
+                    if(widget.category == "Água")
+                    {
+                      text_final = jsonData['alertas'][3];
+                    }
+                    else
+                    {
+                      List<String> alertas = List<String>.from(jsonData['alertas']);
+                      int randomIndex = Random().nextInt(alertas.length);
+                      text_final = alertas[randomIndex];
+
+                    }
+
+
                     return AlertDialog(
-                      title: const Text('Detalhes da Notificação'),
-                      content: Text(alertaAleatorio),
+                      title: Text(widget.text),
+                      content: Text(text_final),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -109,7 +132,7 @@ with SingleTickerProviderStateMixin {
           width: double.infinity,
           height: 60,
           decoration: BoxDecoration(
-            color: Colors.blue,
+            color: _getCategoryColor(widget.category),
             borderRadius: BorderRadius.circular(30),
           ),
           child: Center(
