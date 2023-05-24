@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:async';
 import 'notifications.dart';
+import 'timer.dart';
+
+
 
 void main() {
   runApp(const MyApp());
@@ -45,6 +48,11 @@ class _MyHomePageState extends State<MyHomePage>
   bool autoButton = false;
   bool manualButton = true;
 
+
+  TextEditingController activityTimeController = TextEditingController();
+  TextEditingController breakTimeController = TextEditingController();
+  int activityTime = 25; 
+  int breakTime = 5; 
 
   List<String> notifications = [];
 
@@ -153,26 +161,28 @@ class _MyHomePageState extends State<MyHomePage>
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.normal),
                                           ),
-                                          const TextField(
+                                          TextField(
+                                            controller: activityTimeController,
                                             keyboardType: TextInputType.number,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               border: OutlineInputBorder(),
                                               hintText: 'Tempo de Atividade',
                                             ),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontFamily: 'Baloo',
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.normal),
                                           ),
                                           const SizedBox(height: 10,),
-                                          const TextField(
+                                          TextField(
+                                            controller: breakTimeController,
                                             keyboardType: TextInputType.number,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               border: OutlineInputBorder(),
                                               hintText: 'Tempo de Intervalo',
                                               
                                             ),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontFamily: 'Baloo',
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.normal),
@@ -343,6 +353,10 @@ class _MyHomePageState extends State<MyHomePage>
                                 actions: [
                                   TextButton(
                                     onPressed: () {
+                                      setState(() {
+                                        activityTime = int.tryParse(activityTimeController.text) ?? 25;
+                                        breakTime = int.tryParse(breakTimeController.text) ?? 5;
+                                      });
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text('Salvar'),
@@ -359,12 +373,17 @@ class _MyHomePageState extends State<MyHomePage>
               ],
             ),
           ),
+
+
+
+
+
+          
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Column(
                 children: [
-                  const SizedBox(height: 97),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       trackHeight: 30.0,
@@ -497,59 +516,42 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                 ],
               ),
+
+
               Column(
                 children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey[300],
+                  SizedBox(
+                    width: 200,
+                    height: 300,
+                        child: PomodoroTimer(
+                          activityTime: activityTime,
+                          breakTime: breakTime,
                         ),
-                      ),
-                      AnimatedBuilder(
-                        animation: _animationController,
-                        builder: (context, child) {
-                          return CircularProgressIndicator(
-                            strokeWidth: 100,
-                            value: isCountingDown ? _animation.value : 0.0,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                                Colors.blue),
-                            backgroundColor: Colors.grey[200],
-                          );
-                        },
-                      ),
-                      const Text(
-                        '60 seg',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (isCountingDown) {
-                        stopAnimation();
-                      } else {
-                        startAnimation();
-                      }
-                    },
-                    child: Text(
-                      isCountingDown ? 'Parar' : 'Iniciar',
-                      style: const TextStyle(
-                          fontFamily: 'Baloo',
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal),
-                    ),
-                  ),
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     if (isCountingDown) {
+                  //       stopAnimation();
+                  //     } else {
+                  //       startAnimation();
+                  //     }
+                  //   },
+                  //   child: Text(
+                  //     isCountingDown ? 'Parar' : 'Iniciar',
+                  //     style: const TextStyle(
+                  //         fontFamily: 'Baloo',
+                  //         fontSize: 16,
+                  //         fontWeight: FontWeight.normal),
+                  //   ),
+                  // ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
+
+
+          
+          const SizedBox(height: 10),
 
           
           SingleChildScrollView(
