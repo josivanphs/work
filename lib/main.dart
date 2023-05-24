@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'dart:async';
 import 'notifications.dart';
+import 'timer.dart';
+
+
 
 void main() {
   runApp(const MyApp());
@@ -37,24 +39,33 @@ class _MyHomePageState extends State<MyHomePage>
   double waterValueMax = 0.0;
   double timer = 0;
 
-  bool isCountingDown = false;
-  bool waterButton = false;
-  bool hintButton = false;
-  bool notificationButton = false;
 
-  bool autoButton = false;
-  bool manualButton = true;
+  bool waterButton = true;
+  bool hintButton = true;
+  bool notificationButton = true;
 
+  bool autoButton = true;
+  bool manualButton = false;
+
+
+  TextEditingController activityTimeController = TextEditingController();
+  TextEditingController breakTimeController = TextEditingController();
+  int activityTime = 0; 
+  int breakTime = 0; 
 
   List<String> notifications = [];
+  String text_notification = "Nada";
+  bool show = false;
+  String category= "Nada";
 
-  void startNotifications() {
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      setState(() {
-        notifications.add('Nova notificação ${timer.tick}');
-      });
-    });
-  }
+
+  // void startNotifications() {
+  //   Timer.periodic(const Duration(seconds: 10), (timer) {
+  //     setState(() {
+  //       // notifications.add('Nova notificação ${timer.tick}');
+  //     });
+  //   });
+  // }
 
   void removeNotification(String notification) {
     setState(() {
@@ -66,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-    startNotifications();
+    // startNotifications();
     _animationController = AnimationController(
       duration: const Duration(seconds: 10),
       vsync: this,
@@ -78,7 +89,6 @@ class _MyHomePageState extends State<MyHomePage>
       if (status == AnimationStatus.completed) {
         // A animação foi concluída, você pode realizar alguma ação aqui
         setState(() {
-          isCountingDown = false;
         });
       }
     });
@@ -92,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   void startAnimation() {
     setState(() {
-      isCountingDown = true;
       _animationController.reset();
       _animationController.forward();
     });
@@ -100,7 +109,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   void stopAnimation() {
     setState(() {
-      isCountingDown = false;
       _animationController.reverse();
     });
   }
@@ -109,7 +117,11 @@ class _MyHomePageState extends State<MyHomePage>
   StatefulWidget build(BuildContext context) {
     // ignore: prefer_typing_uninitialized_variables
     return Scaffold(
-      body: Column(
+      body: 
+      SingleChildScrollView(
+      child: 
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SafeArea(
             child: Stack(
@@ -153,26 +165,38 @@ class _MyHomePageState extends State<MyHomePage>
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.normal),
                                           ),
-                                          const TextField(
+                                          TextField(
+                                            onChanged: (value) => {
+                                              setState(() {
+                                                  activityTime = int.tryParse(activityTimeController.text) ?? 0;
+                                              })
+                                            },
+                                            controller: activityTimeController,
                                             keyboardType: TextInputType.number,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               border: OutlineInputBorder(),
                                               hintText: 'Tempo de Atividade',
                                             ),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontFamily: 'Baloo',
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.normal),
                                           ),
                                           const SizedBox(height: 10,),
-                                          const TextField(
+                                          TextField(
+                                            onChanged: (value) => {
+                                              setState(() {
+                                                  breakTime = int.tryParse(breakTimeController.text) ?? 0;
+                                              })
+                                            },
+                                            controller: breakTimeController,
                                             keyboardType: TextInputType.number,
-                                            decoration: InputDecoration(
+                                            decoration: const InputDecoration(
                                               border: OutlineInputBorder(),
                                               hintText: 'Tempo de Intervalo',
                                               
                                             ),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontFamily: 'Baloo',
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.normal),
@@ -196,19 +220,18 @@ class _MyHomePageState extends State<MyHomePage>
                                                           .resolveWith<Color>(
                                                     (Set<MaterialState>
                                                         states) {
-                                                      if (manualButton) {
+                                                      if (!manualButton) {
                                                         return Colors
-                                                            .grey; // Cor cinza para true
+                                                            .grey; 
                                                       }
                                                       return Colors
-                                                          .blue; // Cor azul para false
+                                                          .blue; 
                                                     },
                                                   ),
                                                 ),
                                                 onPressed: () {
                                                   setState(() {
-                                                    manualButton =
-                                                        !manualButton;
+                                                    manualButton = !manualButton;
                                                     autoButton = !autoButton;
                                                   });
                                                 },
@@ -221,19 +244,18 @@ class _MyHomePageState extends State<MyHomePage>
                                                           .resolveWith<Color>(
                                                     (Set<MaterialState>
                                                         states) {
-                                                      if (autoButton) {
+                                                      if (!autoButton) {
                                                         return Colors
-                                                            .grey; // Cor cinza para true
+                                                            .grey; 
                                                       }
                                                       return Colors
-                                                          .blue; // Cor azul para false
+                                                          .blue; 
                                                     },
                                                   ),
                                                 ),
                                                 onPressed: () {
                                                   setState(() {
-                                                    manualButton =
-                                                        !manualButton;
+                                                    manualButton = !manualButton;
                                                     autoButton = !autoButton;
                                                   });
                                                 },
@@ -343,14 +365,17 @@ class _MyHomePageState extends State<MyHomePage>
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.of(context).pop();
+
+                                        Navigator.of(context).pop();
                                     },
                                     child: const Text('Salvar'),
                                   ),
                                 ],
                               );
                             },
-                          );
+                          ).then((_) {
+                              setState(() {});
+                          });
                         },
                       ),
                     ),
@@ -359,197 +384,192 @@ class _MyHomePageState extends State<MyHomePage>
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 97),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 30.0,
-                      thumbShape:
-                          const RoundSliderThumbShape(enabledThumbRadius: 0.0),
-                      overlayShape:
-                          const RoundSliderOverlayShape(overlayRadius: 20.0),
-                    ),
-                    child: Transform.rotate(
-                      // Gire o Slider em 90 graus no sentido anti-horário
-                      angle: 90 * pi / 180,
-                      child: Slider(
-                        value: waterValue,
-                        min: 0,
-                        max: waterValueMax * 1000,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 30.0,
+                        activeTrackColor: Colors.blue, // Define a cor de preenchimento transparente
+                        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 00.0),
+                        overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
+                      ),
+                      child: Transform.rotate(
+                        angle: 180 * pi / 180,
+                        child: 
+                        Slider(
+                          value: waterValue,
+                          min: 0,
+                          max: waterValueMax * 1000,
+                          onChanged: (value) {
+                            setState(() {
+                              waterValue = value;
+                            });
+                          },
+                        ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 60),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        if (waterValue < 100) {
-                          waterValue += 0;
+                        if (waterValueMax == 0)
+                        {
+                          text_notification = 'Configure sua meta diária';
+                          notifications.add(text_notification);
+                          category = "Água";
                         }
                         if (waterValue == waterValueMax * 1000) {
                           waterValue = 0;
                         }
                       });
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text(
-                              'Configuraçoes',
-                            ),
-                            content: StatefulBuilder(
-                              builder:
-                                  (BuildContext context, StateSetter setState) {
-                                return SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                      if (waterValueMax > 0) {
+                    
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  'Configuraçoes',
+                                ),
+                                content: StatefulBuilder(
+                                  builder:
+                                      (BuildContext context, StateSetter setState) {
+                                    return SingleChildScrollView(
+                                      child: Column(
                                         children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              // Ação do botão
-                                              setState(() {
-                                                waterValue += 180;
-                                              });
-                                              Navigator.of(context).pop();
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(
-                                                  16.0), // Ajuste o tamanho do botão conforme necessário
-                                            ),
-                                            child: const Icon(Icons.add),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  // Ação do botão
+                                                  setState(() {
+                                                    waterValue += 180;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  shape: const CircleBorder(),
+                                                  padding: const EdgeInsets.all(
+                                                      16.0), // Ajuste o tamanho do botão conforme necessário
+                                                ),
+                                                child: const Icon(Icons.add),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  // Ação do botão
+                                                  setState(() {
+                                                    waterValue += 300;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  shape: const CircleBorder(),
+                                                  padding: const EdgeInsets.all(
+                                                      16.0), // Ajuste o tamanho do botão conforme necessário
+                                                ),
+                                                child: const Icon(Icons.add),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  // Ação do botão
+                                                  waterValue += 500;
+                                                  Navigator.of(context).pop();
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  shape: const CircleBorder(),
+                                                  padding: const EdgeInsets.all(
+                                                      16.0), // Ajuste o tamanho do botão conforme necessário
+                                                ),
+                                                child: const Icon(Icons.add),
+                                              ),
+                                            ],
                                           ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              // Ação do botão
+                                          TextField(
+                                            enabled: waterButton,
+                                            keyboardType: TextInputType.number,
+                                            decoration: const InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              hintText:
+                                                  'Quantidade de Água Ingerida...',
+                                            ),
+                                            onChanged: (value) => {
                                               setState(() {
-                                                waterValue += 300;
-                                              });
-                                              Navigator.of(context).pop();
+                                                waterValue = double.parse(value);
+                                              })
                                             },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(
-                                                  16.0), // Ajuste o tamanho do botão conforme necessário
-                                            ),
-                                            child: const Icon(Icons.add),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              // Ação do botão
-                                              waterValue += 500;
-                                              Navigator.of(context).pop();
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(
-                                                  16.0), // Ajuste o tamanho do botão conforme necessário
-                                            ),
-                                            child: const Icon(Icons.add),
                                           ),
                                         ],
                                       ),
-                                      TextField(
-                                        enabled: waterButton,
-                                        keyboardType: TextInputType.number,
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(),
-                                          hintText:
-                                              'Quantidade de Água Ingerida...',
-                                        ),
-                                        onChanged: (value) => {
-                                          setState(() {
-                                            waterValue = double.parse(value);
-                                          })
-                                        },
-                                      ),
-                                    ],
+                                    );
+                                  },
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Adicionar'),
                                   ),
-                                );
-                              },
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Adicionar'),
-                              ),
-                            ],
-                          );
-                        },
-                      ).then((_) {
-                        setState(() {});
-                      });
-                    },
-                    child:
-                        Text((waterValue < waterValueMax) ? 'Água' : 'Zerar'),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey[300],
+                                ],
+                              );
+                            },
+                          ).then((_) {
+                            setState(() {});
+                          });
+                    }},
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(50)),
                         ),
                       ),
-                      AnimatedBuilder(
-                        animation: _animationController,
-                        builder: (context, child) {
-                          return CircularProgressIndicator(
-                            strokeWidth: 100,
-                            value: isCountingDown ? _animation.value : 0.0,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                                Colors.blue),
-                            backgroundColor: Colors.grey[200],
-                          );
-                        },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/gotas.png',
+                            width: 30.0,
+                            height: 30.0,
+                          ),
+                        ],
                       ),
-                      const Text(
-                        '60 seg',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (isCountingDown) {
-                        stopAnimation();
-                      } else {
-                        startAnimation();
-                      }
-                    },
-                    child: Text(
-                      isCountingDown ? 'Parar' : 'Iniciar',
-                      style: const TextStyle(
-                          fontFamily: 'Baloo',
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal),
-                    ),
                   ),
                 ],
+              ), 
+                  SizedBox(
+                    width: 250,
+                    height: 320,
+                        child: 
+                          KeyedSubtree(
+                            key: ValueKey(activityTime), // Use uma chave única baseada em activityTime
+                            child: PomodoroTimer(
+                              activityTime: activityTime,
+                              breakTime: breakTime,
+                              auto: autoButton,
+                            ),
+                          )
+                  ),
+
+
+
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
+  
+      ]),
+
+
+          
+          const SizedBox(height: 10),
 
           
           SingleChildScrollView(
@@ -591,7 +611,8 @@ class _MyHomePageState extends State<MyHomePage>
                         width: 200, // Defina a largura desejada para cada notificação
                         height: 30, // Defina a altura desejada para cada notificação
                         child: NotificationBar(
-                          text: notification,
+                          text: text_notification,
+                          category: category,
                           onDismissed: () => removeNotification(notification),
                         ),
                       ),
@@ -607,6 +628,7 @@ class _MyHomePageState extends State<MyHomePage>
 
         ],
       ),
+    ),
     );
   }
 }
