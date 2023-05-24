@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:async';
+import 'notifications.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
@@ -43,10 +45,28 @@ class _MyHomePageState extends State<MyHomePage>
   bool autoButton = false;
   bool manualButton = true;
 
+
+  List<String> notifications = [];
+
+  void startNotifications() {
+    Timer.periodic(const Duration(seconds: 10), (timer) {
+      setState(() {
+        notifications.add('Nova notificação ${timer.tick}');
+      });
+    });
+  }
+
+  void removeNotification(String notification) {
+    setState(() {
+      notifications.remove(notification);
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();
-
+    startNotifications();
     _animationController = AnimationController(
       duration: const Duration(seconds: 10),
       vsync: this,
@@ -88,7 +108,6 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   StatefulWidget build(BuildContext context) {
     // ignore: prefer_typing_uninitialized_variables
-    var math;
     return Scaffold(
       body: Column(
         children: [
@@ -145,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage>
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.normal),
                                           ),
-                                          SizedBox(height: 10,),
+                                          const SizedBox(height: 10,),
                                           const TextField(
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
@@ -403,12 +422,12 @@ class _MyHomePageState extends State<MyHomePage>
                                               });
                                               Navigator.of(context).pop();
                                             },
-                                            child: Icon(Icons.add),
                                             style: ElevatedButton.styleFrom(
-                                              shape: CircleBorder(),
-                                              padding: EdgeInsets.all(
+                                              shape: const CircleBorder(),
+                                              padding: const EdgeInsets.all(
                                                   16.0), // Ajuste o tamanho do botão conforme necessário
                                             ),
+                                            child: const Icon(Icons.add),
                                           ),
                                           ElevatedButton(
                                             onPressed: () {
@@ -418,12 +437,12 @@ class _MyHomePageState extends State<MyHomePage>
                                               });
                                               Navigator.of(context).pop();
                                             },
-                                            child: Icon(Icons.add),
                                             style: ElevatedButton.styleFrom(
-                                              shape: CircleBorder(),
-                                              padding: EdgeInsets.all(
+                                              shape: const CircleBorder(),
+                                              padding: const EdgeInsets.all(
                                                   16.0), // Ajuste o tamanho do botão conforme necessário
                                             ),
+                                            child: const Icon(Icons.add),
                                           ),
                                           ElevatedButton(
                                             onPressed: () {
@@ -431,12 +450,12 @@ class _MyHomePageState extends State<MyHomePage>
                                               waterValue += 500;
                                               Navigator.of(context).pop();
                                             },
-                                            child: Icon(Icons.add),
                                             style: ElevatedButton.styleFrom(
-                                              shape: CircleBorder(),
-                                              padding: EdgeInsets.all(
+                                              shape: const CircleBorder(),
+                                              padding: const EdgeInsets.all(
                                                   16.0), // Ajuste o tamanho do botão conforme necessário
                                             ),
+                                            child: const Icon(Icons.add),
                                           ),
                                         ],
                                       ),
@@ -531,18 +550,61 @@ class _MyHomePageState extends State<MyHomePage>
             ],
           ),
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: const Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Digite algo...',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: null,
+
+          
+          SingleChildScrollView(
+            child: Container(
+              height: 200, // Defina a altura máxima desejada
+              color: Colors.grey[200],
+              child: ListView.builder(
+                itemCount: notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = notifications[index];
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 5), // Adicione um espaçamento entre as notificações
+                    child: Dismissible(
+                      key: Key(notification),
+                      direction: DismissDirection.horizontal, // Defina a direção de deslize permitida
+                      onDismissed: (direction) {
+                        setState(() {
+                          notifications.removeAt(index); // Remova a notificação da lista
+                        });
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   SnackBar(content: Text('Notificação removida')),
+                        // );
+                      },
+                      confirmDismiss: (direction) async {
+                        if (direction == DismissDirection.startToEnd ||
+                            direction == DismissDirection.endToStart) {
+                          return true; // Confirma a remoção da notificação
+                        }
+                        return false; // Cancela a remoção da notificação
+                      },
+                      // background: Container(
+                      //   color: Colors.red,
+                      //   child: Icon(Icons.delete, color: Colors.white),
+                      //   alignment: Alignment.centerLeft,
+                      //   padding: EdgeInsets.only(left: 16),
+                      // ),
+                      child: SizedBox(
+                        width: 200, // Defina a largura desejada para cada notificação
+                        height: 30, // Defina a altura desejada para cada notificação
+                        child: NotificationBar(
+                          text: notification,
+                          onDismissed: () => removeNotification(notification),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
+
+
+
+
         ],
       ),
     );
